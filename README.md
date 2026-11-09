@@ -31,9 +31,7 @@ Developed for the **CodeAlpha Artificial Intelligence Internship (Project 2)**.
 - [Running the Application](#-running-the-application)
 - [Streamlit Dashboard Features](#-streamlit-dashboard-features)
 - [Automated Testing](#-automated-testing)
-- [Demonstration Script (2-Minute Walkthrough)](#-demonstration-script-2-minute-walkthrough)
-- [Resume-Ready Description](#-resume-ready-description)
-- [Technical Interview Q&A](#-technical-interview-qa)
+- [License & Acknowledgments](#-license--acknowledgments)
 
 ---
 
@@ -285,50 +283,6 @@ tests/test_detection.py::test_invalid_video_handling PASSED              [ 90%]
 tests/test_detection.py::test_video_processing_pipeline PASSED           [100%]
 ============================= 11 passed in 9.64s ==============================
 ```
-
----
-
-## 🎬 Demonstration Script (2-Minute Walkthrough)
-
-**Target Audience:** Technical Recruiters, Mentors, and Internship Evaluators.
-
-| Time | Section | Spoken Script & Actions |
-| :--- | :--- | :--- |
-| **0:00 - 0:25** | **Introduction & Problem Statement** | *"Hello! Today I am presenting my second project for the CodeAlpha AI Internship: a real-time Object Detection and Tracking system. While basic object detection locates objects on static frames, practical applications like autonomous driving, retail analytics, and surveillance require maintaining persistent object identities over time. In this project, I integrated YOLOv8 with the genuine SORT tracking algorithm."* |
-| **0:25 - 0:55** | **Architecture & SORT Walkthrough** | *"Our pipeline utilizes YOLOv8 for real-time spatial localization across 80 COCO classes. For tracking, I implemented the SORT algorithm from first principles. Each object is modeled by a 7-dimensional Kalman Filter capturing position, scale, aspect ratio, and linear velocities. Between frames, the Hungarian algorithm matches predicted positions to new detections using an Intersection-over-Union cost matrix. If an object is momentarily occluded, the Kalman filter predicts its state, allowing seamless ID recovery without re-identification drift."* |
-| **0:55 - 1:35** | **Live UI Demonstration** | *(Open browser to Streamlit UI)* *"Here is the interactive Streamlit dashboard. In the sidebar, we can select between video upload, live webcam, or synthetic demo stream. Notice our real-time metric cards showing active tracks, cumulative unique IDs, and FPS. As objects move across the viewport, each object retains a unique, color-coded ID banner with a trailing trajectory path. We can dynamically adjust the confidence threshold or filter to specific classes like pedestrians or vehicles."* |
-| **1:35 - 2:00** | **Testing & Conclusion** | *(Show terminal with pytest output)* *"The entire codebase is strictly modularized into detector and tracker components and backed by an automated 11-test suite covering everything from Kalman state matrices to occlusion recovery. This project showcases practical Computer Vision engineering, real-time algorithms, and production UI design. Thank you!"* |
-
----
-
-## 💼 Resume-Ready Description
-
-### Bullet Points for Software Engineer / AI / CV Roles:
-- **Real-Time Object Detection & Tracking System (YOLOv8, SORT, OpenCV, Streamlit):**
-  - Engineered an end-to-end multi-object detection and tracking application integrating **YOLOv8** for real-time object localization across 80 COCO classes at 30+ FPS.
-  - Implemented the **SORT (Simple Online and Realtime Tracking)** framework from scratch, incorporating a **7-state Kalman Filter** for constant-velocity motion projection and the **Hungarian Algorithm** for optimal bipartite data association based on **Intersection-over-Union (IoU)** distance matrices.
-  - Developed track lifecycle management handling track creation, track death, and temporary occlusion re-acquisition across dropped frames.
-  - Built a full-featured **Streamlit web dashboard** supporting dual-source video ingestion (webcam and file upload), dynamic parameter tuning, trajectory trail visualization, and live telemetry data tables.
-  - Authored an automated **PyTest test suite** verifying bounding box geometry, confidence pruning, Hungarian assignment, tracking continuity, and video I/O exception handling.
-
----
-
-## 💡 Technical Interview Q&A
-
-### Q1: What is the primary difference between Object Detection and Object Tracking?
-**Answer:** Object Detection operates on individual static frames without temporal awareness; it locates bounding boxes and assigns class labels, but assigns no consistent identity across frames. Object Tracking links detections across consecutive video frames, assigning a unique identifier (ID) to each physical object and maintaining that ID as the object moves, undergoes partial occlusion, or temporarily disappears.
-
-### Q2: Why does SORT use a 7-dimensional state vector in its Kalman Filter?
-**Answer:** The state vector is defined as $\mathbf{x} = [u, v, s, r, \dot{u}, \dot{v}, \dot{s}]^T$, where $(u, v)$ is the bounding box center, $s$ is the bounding box scale (area), and $r$ is the aspect ratio ($w/h$). The aspect ratio $r$ is assumed approximately constant over short time horizons for rigid or semi-rigid bodies. The derivative terms $(\dot{u}, \dot{v}, \dot{s})$ model linear constant-velocity dynamics, enabling the filter to predict an object's future position and scale even if a detection is momentarily missed in the next frame.
-
-### Q3: How does the Hungarian Algorithm solve the data association problem in SORT?
-**Answer:** Data association matches $M$ existing trackers (predicted bounding boxes) with $N$ new detections. We compute an $M \times N$ pairwise Intersection-over-Union (IoU) matrix. Converting this to a cost matrix $\mathbf{C} = 1 - \text{IoU}$, the Hungarian algorithm (Kuhn-Munkres algorithm, implemented via `scipy.optimize.linear_sum_assignment`) solves the global minimum-weight bipartite matching problem in polynomial time $O(V^3)$. Any match with an IoU beneath the threshold (e.g., 0.3) is rejected to prevent false associations.
-
-### Q4: How does SORT handle missed detections and temporary occlusions?
-**Answer:** Each tracker maintains a parameter `time_since_update`. When an object is occluded or missed by the detector in frame $k$, the Kalman Filter still predicts its anticipated position based on its velocity vector, but no measurement update occurs (`time_since_update` increments by 1). If the object re-appears in frame $k+1$ or $k+2$ within the predicted region, the Hungarian algorithm re-matches the detection to the existing tracker, preserving the object's original track ID. If `time_since_update` exceeds `max_age`, the track is terminated.
-
-### Q5: What are the primary limitations of SORT, and how does DeepSORT address them?
-**Answer:** SORT relies exclusively on spatial proximity (IoU) and linear motion estimation. When objects move erratically, undergo long-term occlusions (exceeding `max_age`), or pass closely behind each other (causing overlapping bounding boxes), SORT can suffer from ID switches. **DeepSORT** addresses this limitation by extracting a deep visual appearance feature embedding vector for each bounding box using a convolutional neural network (Re-ID model) and combining cosine visual distance with Mahalanobis motion distance in the assignment cost function.
 
 ---
 
