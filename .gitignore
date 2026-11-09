@@ -1,0 +1,40 @@
+# Python virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large model weights (do not push to git)
+*.pt
+*.pth
+*.onnx
+*.weights
+models/*.pt
+models/*.pth
+models/*.onnx
+
+# Temporary files and caches
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+runs/
+temp/
+tmp/
+.config/
+models/.config/
+*.mp4
+*.avi
+*.mov
+!examples/*.mp4
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
